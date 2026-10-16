@@ -1,0 +1,40 @@
+server:
+  port: ${SERVER_PORT:8081}
+
+spring:
+  application:
+    name: catalog-service
+  datasource:
+    url: jdbc:postgresql://${DB_HOST:localhost}:${DB_PORT:5433}/${DB_NAME:catalog_db}
+    username: ${DB_USER:catalog_user}
+    password: ${DB_PASSWORD:catalog_pass}
+    driver-class-name: org.postgresql.Driver
+  jpa:
+    hibernate:
+      ddl-auto: update
+    show-sql: false
+    properties:
+      hibernate:
+        format_sql: true
+  data:
+    redis:
+      host: ${CATEDRA_REDIS_HOST:172.17.201.1}
+      port: ${CATEDRA_REDIS_PORT:6379}
+      username: ${CATEDRA_REDIS_USER:}
+      password: ${CATEDRA_REDIS_PASSWORD:}
+  kafka:
+    bootstrap-servers: ${CATEDRA_KAFKA_SERVERS:172.17.201.1:9094}
+    consumer:
+      group-id: ${CATEDRA_KAFKA_GROUP:alumnos-proyecto-melina-gomez}
+      auto-offset-reset: earliest
+      enable-auto-commit: false
+      key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+      value-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+
+catedra:
+  group-id: ${CATEDRA_GROUP_ID:proyecto-melina-gomez}
+  api:
+    base-url: ${CATEDRA_API_URL:http://172.17.201.1:8090}
+    jwt-token: ${CATEDRA_JWT_TOKEN:}
+  kafka:
+    catalog-topic: ${CATEDRA_CATALOG_TOPIC:catedra.catalog.proyecto-melina-gomez}
