@@ -1,7 +1,8 @@
 package ar.edu.um.catalog.service;
 
 import ar.edu.um.catalog.domain.*;
-import ar.edu.um.catalog.repository.*;
+import ar.edu.um.catalog.adapters.out.persistence.*;
+import ar.edu.um.catalog.ports.in.CatalogSyncUseCase;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.core.ParameterizedTypeReference;
@@ -16,7 +17,7 @@ import java.util.Map;
 @Slf4j
 @Service
 @RequiredArgsConstructor
-public class CatalogSyncService {
+public class CatalogSyncService implements CatalogSyncUseCase {
 
     private final RestClient catedraRestClient;
     private final ProfessionalCategoryRepository categoryRepository;
@@ -24,11 +25,11 @@ public class CatalogSyncService {
     private final WeeklyScheduleRepository scheduleRepository;
     private final CatalogSyncStateRepository syncStateRepository;
 
+    @Override
     @Transactional
     public void executeFullSnapshotSync() {
         log.info("Iniciando sincronizacion completa por Snapshot...");
 
-        // Consumir el endpoint REST de snapshot de la catedra
         Map<String, Object> response = catedraRestClient.get()
                 .uri("/api/synchronization/snapshot")
                 .retrieve()
@@ -41,7 +42,6 @@ public class CatalogSyncService {
         Integer snapshotVersionInt = (Integer) response.get("snapshotVersion");
         Long snapshotVersion = snapshotVersionInt.longValue();
 
-        // Mapear y guardar categorias
         List<Map<String, Object>> catList = (List<Map<String, Object>>) response.get("professionalCategories");
         if (catList != null) {
             for (Map<String, Object> c : catList) {
@@ -57,7 +57,6 @@ public class CatalogSyncService {
             }
         }
 
-        // Mapear y guardar profesionales
         List<Map<String, Object>> profList = (List<Map<String, Object>>) response.get("professionals");
         if (profList != null) {
             for (Map<String, Object> p : profList) {
@@ -74,7 +73,6 @@ public class CatalogSyncService {
             }
         }
 
-        // Mapear y guardar horarios semanales
         List<Map<String, Object>> schedList = (List<Map<String, Object>>) response.get("weeklySchedules");
         if (schedList != null) {
             for (Map<String, Object> s : schedList) {
@@ -93,7 +91,6 @@ public class CatalogSyncService {
             }
         }
 
-        // Registrar la version local aplicada de forma consistente
         CatalogSyncState state = syncStateRepository.findById(1L).orElse(new CatalogSyncState());
         state.setId(1L);
         state.setCurrentVersion(snapshotVersion);
