@@ -1,4 +1,4 @@
-package ar.edu.um.catalog.repository;
+package ar.edu.um.catalog.adapters.out.persistence;
 
 import ar.edu.um.catalog.domain.Professional;
 import org.springframework.data.jpa.repository.JpaRepository;

@@ -1,12 +1,12 @@
-package ar.edu.um.catalog.controller;
+package ar.edu.um.catalog.adapters.in.rest;
 
 import ar.edu.um.catalog.domain.Professional;
 import ar.edu.um.catalog.domain.ProfessionalCategory;
 import ar.edu.um.catalog.domain.WeeklySchedule;
-import ar.edu.um.catalog.repository.ProfessionalCategoryRepository;
-import ar.edu.um.catalog.repository.ProfessionalRepository;
-import ar.edu.um.catalog.repository.WeeklyScheduleRepository;
-import ar.edu.um.catalog.service.CatalogSyncService;
+import ar.edu.um.catalog.adapters.out.persistence.ProfessionalCategoryRepository;
+import ar.edu.um.catalog.adapters.out.persistence.ProfessionalRepository;
+import ar.edu.um.catalog.adapters.out.persistence.WeeklyScheduleRepository;
+import ar.edu.um.catalog.ports.in.CatalogSyncUseCase;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -21,22 +21,19 @@ public class CatalogController {
     private final ProfessionalCategoryRepository categoryRepository;
     private final ProfessionalRepository professionalRepository;
     private final WeeklyScheduleRepository scheduleRepository;
-    private final CatalogSyncService catalogSyncService;
+    private final CatalogSyncUseCase catalogSyncUseCase;
 
-    // Endpoint para forzar o reintentar la sincronizacion completa local
     @PostMapping("/sync")
     public ResponseEntity<String> triggerSync() {
-        catalogSyncService.executeFullSnapshotSync();
+        catalogSyncUseCase.executeFullSnapshotSync();
         return ResponseEntity.ok("Sincronizacion completa ejecutada correctamente.");
     }
 
-    // Listar categorias locales
     @GetMapping("/categories")
     public ResponseEntity<List<ProfessionalCategory>> getAllCategories() {
         return ResponseEntity.ok(categoryRepository.findAll());
     }
 
-    // Buscar profesionales utilizando filtros locales obligatorios (categoria, nombre, estado)
     @GetMapping("/professionals")
     public ResponseEntity<List<Professional>> searchProfessionals(
             @RequestParam(required = false) Long categoryId,
@@ -46,7 +43,6 @@ public class CatalogController {
         return ResponseEntity.ok(professionals);
     }
 
-    // Consultar horarios semanales de un profesional especifico
     @GetMapping("/professionals/{professionalId}/schedules")
     public ResponseEntity<List<WeeklySchedule>> getProfessionalSchedules(@PathVariable Long professionalId) {
         List<WeeklySchedule> schedules = scheduleRepository.findByProfessionalId(professionalId);
