@@ -1,0 +1,19 @@
+spring:
+  datasource:
+    url: jdbc:h2:mem:testdb;DB_CLOSE_DELAY=-1
+    driver-class-name: org.h2.Driver
+  jpa:
+    hibernate:
+      ddl-auto: create-drop
+    show-sql: true
+  kafka:
+    bootstrap-servers: localhost:9092
+    consumer:
+      group-id: catalog-test-group
+
+catedra:
+  api:
+    base-url: http://localhost:8080/api
+    jwt-token: test-jwt-token-placeholder
+  kafka:
+    catalog-topic: catalog-topic-test
