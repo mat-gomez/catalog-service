@@ -19,6 +19,24 @@ import java.util.Map;
 @RequiredArgsConstructor
 public class CatalogSyncService implements CatalogSyncUseCase {
 
+    private static final String FIELD_ID = "id";
+    private static final String FIELD_NAME = "name";
+    private static final String FIELD_DESCRIPTION = "description";
+    private static final String FIELD_ENABLED = "enabled";
+    private static final String FIELD_CREATED_AT = "createdAt";
+    private static final String FIELD_UPDATED_AT = "updatedAt";
+    private static final String FIELD_CATEGORY_ID = "categoryId";
+    private static final String FIELD_FIRST_NAME = "firstName";
+    private static final String FIELD_LAST_NAME = "lastName";
+    private static final String FIELD_PROFESSIONAL_ID = "professionalId";
+    private static final String FIELD_DAY_OF_WEEK = "dayOfWeek";
+    private static final String FIELD_START_TIME = "startTime";
+    private static final String FIELD_END_TIME = "endTime";
+    private static final String FIELD_SLOT_DURATION_MINUTES = "slotDurationMinutes";
+
+    private static final String SNAPSHOT_URI = "/api/synchronization/snapshot";
+    private static final String ERROR_SNAPSHOT_MSG = "No se pudo obtener el snapshot del catalogo desde la catedra.";
+
     private final RestClient catedraRestClient;
     private final ProfessionalCategoryRepository categoryRepository;
     private final ProfessionalRepository professionalRepository;
@@ -31,81 +49,88 @@ public class CatalogSyncService implements CatalogSyncUseCase {
         log.info("Iniciando sincronizacion completa por Snapshot...");
 
         Map<String, Object> response = catedraRestClient.get()
-                .uri("/api/synchronization/snapshot")
+                .uri(SNAPSHOT_URI)
                 .retrieve()
                 .body(new ParameterizedTypeReference<>() {});
 
         if (response == null) {
-            throw new RuntimeException("No se pudo obtener el snapshot del catalogo desde la catedra.");
+            throw new RuntimeException(ERROR_SNAPSHOT_MSG);
         }
 
         Integer snapshotVersionInt = (Integer) response.get("snapshotVersion");
-        Long snapshotVersion = snapshotVersionInt.longValue();
+        Long snapshotVersion = snapshotVersionInt != null ? snapshotVersionInt.longValue() : 0L;
 
-        Object catObj = response.get("professionalCategories");
-        if (catObj instanceof List<?>) {
-            List<?> catList = (List<?>) catObj;
+        processCategories(response.get("professionalCategories"));
+        processProfessionals(response.get("professionals"));
+        processSchedules(response.get("weeklySchedules"));
+
+        updateSyncState(snapshotVersion);
+
+        log.info("Sincronizacion completa finalizada con exito. Version aplicada: {}", snapshotVersion);
+    }
+
+    private void processCategories(Object catObj) {
+        if (catObj instanceof List<?> catList) {
             for (Object item : catList) {
                 if (item instanceof Map<?, ?> c) {
-                    ProfessionalCategoryEntity catEntity = new ProfessionalCategoryEntity();
-                    catEntity.setId(((Number) c.get("id")).longValue());
-                    catEntity.setName((String) c.get("name"));
-                    catEntity.setDescription((String) c.get("description"));
-                    catEntity.setEnabled((Boolean) c.get("enabled"));
-                    catEntity.setCreatedAt(parseInstant(c.get("createdAt")));
-                    catEntity.setUpdatedAt(parseInstant(c.get("updatedAt")));
-                    categoryRepository.save(catEntity);
+                    ProfessionalCategoryEntity entity = new ProfessionalCategoryEntity();
+                    entity.setId(((Number) c.get(FIELD_ID)).longValue());
+                    entity.setName((String) c.get(FIELD_NAME));
+                    entity.setDescription((String) c.get(FIELD_DESCRIPTION));
+                    entity.setEnabled((Boolean) c.get(FIELD_ENABLED));
+                    entity.setCreatedAt(parseInstant(c.get(FIELD_CREATED_AT)));
+                    entity.setUpdatedAt(parseInstant(c.get(FIELD_UPDATED_AT)));
+                    categoryRepository.save(entity);
                 }
             }
         }
+    }
 
-        Object profObj = response.get("professionals");
-        if (profObj instanceof List<?>) {
-            List<?> profList = (List<?>) profObj;
+    private void processProfessionals(Object profObj) {
+        if (profObj instanceof List<?> profList) {
             for (Object item : profList) {
                 if (item instanceof Map<?, ?> p) {
-                    ProfessionalEntity profEntity = new ProfessionalEntity();
-                    profEntity.setId(((Number) p.get("id")).longValue());
-                    profEntity.setCategoryId(((Number) p.get("categoryId")).longValue());
-                    profEntity.setFirstName((String) p.get("firstName"));
-                    profEntity.setLastName((String) p.get("lastName"));
-                    profEntity.setEnabled((Boolean) p.get("enabled"));
-                    profEntity.setCreatedAt(parseInstant(p.get("createdAt")));
-                    profEntity.setUpdatedAt(parseInstant(p.get("updatedAt")));
-                    professionalRepository.save(profEntity);
+                    ProfessionalEntity entity = new ProfessionalEntity();
+                    entity.setId(((Number) p.get(FIELD_ID)).longValue());
+                    entity.setCategoryId(((Number) p.get(FIELD_CATEGORY_ID)).longValue());
+                    entity.setFirstName((String) p.get(FIELD_FIRST_NAME));
+                    entity.setLastName((String) p.get(FIELD_LAST_NAME));
+                    entity.setEnabled((Boolean) p.get(FIELD_ENABLED));
+                    entity.setCreatedAt(parseInstant(p.get(FIELD_CREATED_AT)));
+                    entity.setUpdatedAt(parseInstant(p.get(FIELD_UPDATED_AT)));
+                    professionalRepository.save(entity);
                 }
             }
         }
+    }
 
-        Object schedObj = response.get("weeklySchedules");
-        if (schedObj instanceof List<?>) {
-            List<?> schedList = (List<?>) schedObj;
+    private void processSchedules(Object schedObj) {
+        if (schedObj instanceof List<?> schedList) {
             for (Object item : schedList) {
                 if (item instanceof Map<?, ?> s) {
-                    WeeklyScheduleEntity schedEntity = new WeeklyScheduleEntity();
-                    schedEntity.setId(((Number) s.get("id")).longValue());
-                    schedEntity.setProfessionalId(((Number) s.get("professionalId")).longValue());
-                    schedEntity.setDayOfWeek((String) s.get("dayOfWeek"));
-                    schedEntity.setStartTime(LocalTime.parse((String) s.get("startTime")));
-                    schedEntity.setEndTime(LocalTime.parse((String) s.get("endTime")));
-                    schedEntity.setSlotDurationMinutes(((Number) s.get("slotDurationMinutes")).intValue());
-                    schedEntity.setEnabled((Boolean) s.get("enabled"));
-                    schedEntity.setCreatedAt(parseInstant(s.get("createdAt")));
-                    schedEntity.setUpdatedAt(parseInstant(s.get("updatedAt")));
-                    scheduleRepository.save(schedEntity);
+                    WeeklyScheduleEntity entity = new WeeklyScheduleEntity();
+                    entity.setId(((Number) s.get(FIELD_ID)).longValue());
+                    entity.setProfessionalId(((Number) s.get(FIELD_PROFESSIONAL_ID)).longValue());
+                    entity.setDayOfWeek((String) s.get(FIELD_DAY_OF_WEEK));
+                    entity.setStartTime(LocalTime.parse((String) s.get(FIELD_START_TIME)));
+                    entity.setEndTime(LocalTime.parse((String) s.get(FIELD_END_TIME)));
+                    entity.setSlotDurationMinutes(((Number) s.get(FIELD_SLOT_DURATION_MINUTES)).intValue());
+                    entity.setEnabled((Boolean) s.get(FIELD_ENABLED));
+                    entity.setCreatedAt(parseInstant(s.get(FIELD_CREATED_AT)));
+                    entity.setUpdatedAt(parseInstant(s.get(FIELD_UPDATED_AT)));
+                    scheduleRepository.save(entity);
                 }
             }
         }
+    }
 
-        CatalogSyncStateEntity state = syncStateRepository.findById(1L).orElse(new CatalogSyncStateEntity());
+    private void updateSyncState(Long snapshotVersion) {
+        CatalogSyncStateEntity state = syncStateRepository.findById(1L).orElseGet(CatalogSyncStateEntity::new);
         state.setId(1L);
         state.setCurrentVersion(snapshotVersion);
         state.setLastSyncedAt(Instant.now());
         state.setStatus("SUCCESS");
-
         syncStateRepository.save(state);
-
-        log.info("Sincronizacion completa finalizada con exito. Version aplicada: {}", snapshotVersion);
     }
 
     private Instant parseInstant(Object val) {
