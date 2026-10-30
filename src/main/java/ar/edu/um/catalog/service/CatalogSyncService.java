@@ -54,7 +54,7 @@ public class CatalogSyncService implements CatalogSyncUseCase {
                 .body(new ParameterizedTypeReference<>() {});
 
         if (response == null) {
-            throw new RuntimeException(ERROR_SNAPSHOT_MSG);
+            throw new IllegalStateException(ERROR_SNAPSHOT_MSG);
         }
 
         Integer snapshotVersionInt = (Integer) response.get("snapshotVersion");
