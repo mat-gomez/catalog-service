@@ -1,5 +1,6 @@
 package ar.edu.um.catalog.controller;
 
+import ar.edu.um.catalog.adapters.in.rest.CatalogController;
 import ar.edu.um.catalog.ports.in.CatalogSyncUseCase;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
