@@ -9,7 +9,6 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
-import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 @ExtendWith(MockitoExtension.class)
@@ -28,12 +27,5 @@ class CatalogIncrementalSyncServiceTest {
     @Test
     void testServiceInstantiation() {
         assertNotNull(catalogIncrementalSyncService);
-    }
-
-    @Test
-    void testExecuteIncrementalSync() {
-
-        assertDoesNotThrow(() -> {
-        });
     }
 }
