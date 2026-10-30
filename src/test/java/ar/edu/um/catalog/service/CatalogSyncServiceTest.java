@@ -43,7 +43,6 @@ class CatalogSyncServiceTest {
 
     @Test
     void testExecuteFullSnapshotSyncSuccess() {
-        // Mock de la respuesta del RestClient para que devuelva un snapshot válido
         Map<String, Object> mockSnapshot = new HashMap<>();
         mockSnapshot.put("snapshotVersion", 1);
         mockSnapshot.put("professionalCategories", Collections.emptyList());
@@ -57,10 +56,8 @@ class CatalogSyncServiceTest {
 
         when(syncStateRepository.findById(1L)).thenReturn(java.util.Optional.empty());
 
-        // Ejecutamos el método real para que JaCoCo registre la cobertura de código
         assertDoesNotThrow(() -> catalogSyncService.executeFullSnapshotSync());
 
-        // Verificamos que se haya intentado guardar el estado de sincronización
         verify(syncStateRepository, times(1)).save(any(CatalogSyncStateEntity.class));
     }
 }
