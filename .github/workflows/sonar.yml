@@ -52,6 +52,11 @@ jobs:
           key: ${{ runner.os }}-m2-${{ hashFiles('**/pom.xml') }}
           restore-keys: ${{ runner.os }}-m2
 
+      - name: Debug - Verificar si existe jacoco.xml
+        run: |
+            echo "Buscando jacoco.xml..."
+            find . -name "jacoco.xml"
+
       - name: Build and analyze
         env:
            GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
