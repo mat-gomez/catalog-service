@@ -3,8 +3,11 @@ package ar.edu.um.catalog.adapters.in.rest;
 import ar.edu.um.catalog.domain.Professional;
 import ar.edu.um.catalog.domain.ProfessionalCategory;
 import ar.edu.um.catalog.domain.WeeklySchedule;
+import ar.edu.um.catalog.adapters.out.persistence.ProfessionalCategoryEntity;
 import ar.edu.um.catalog.adapters.out.persistence.ProfessionalCategoryRepository;
+import ar.edu.um.catalog.adapters.out.persistence.ProfessionalEntity;
 import ar.edu.um.catalog.adapters.out.persistence.ProfessionalRepository;
+import ar.edu.um.catalog.adapters.out.persistence.WeeklyScheduleEntity;
 import ar.edu.um.catalog.adapters.out.persistence.WeeklyScheduleRepository;
 import ar.edu.um.catalog.ports.in.CatalogSyncUseCase;
 import lombok.RequiredArgsConstructor;
@@ -31,7 +34,18 @@ public class CatalogController {
 
     @GetMapping("/categories")
     public ResponseEntity<List<ProfessionalCategory>> getAllCategories() {
-        return ResponseEntity.ok(categoryRepository.findAll());
+        List<ProfessionalCategoryEntity> entities = categoryRepository.findAll();
+        List<ProfessionalCategory> categories = entities.stream()
+                .map(e -> ProfessionalCategory.builder()
+                        .id(e.getId())
+                        .name(e.getName())
+                        .description(e.getDescription())
+                        .enabled(e.getEnabled())
+                        .createdAt(e.getCreatedAt())
+                        .updatedAt(e.getUpdatedAt())
+                        .build())
+                .toList();
+        return ResponseEntity.ok(categories);
     }
 
     @GetMapping("/professionals")
@@ -39,13 +53,40 @@ public class CatalogController {
             @RequestParam(required = false) Long categoryId,
             @RequestParam(required = false) String name,
             @RequestParam(required = false) Boolean enabled) {
-        List<Professional> professionals = professionalRepository.findByFilters(categoryId, name, enabled);
+
+        List<ProfessionalEntity> entities = professionalRepository.findByFilters(categoryId, name, enabled);
+
+        List<Professional> professionals = entities.stream()
+                .map(e -> Professional.builder()
+                        .id(e.getId())
+                        .categoryId(e.getCategoryId())
+                        .firstName(e.getFirstName())
+                        .lastName(e.getLastName())
+                        .enabled(e.getEnabled())
+                        .createdAt(e.getCreatedAt())
+                        .updatedAt(e.getUpdatedAt())
+                        .build())
+                .toList();
+
         return ResponseEntity.ok(professionals);
     }
 
     @GetMapping("/professionals/{professionalId}/schedules")
     public ResponseEntity<List<WeeklySchedule>> getProfessionalSchedules(@PathVariable Long professionalId) {
-        List<WeeklySchedule> schedules = scheduleRepository.findByProfessionalId(professionalId);
+        List<WeeklyScheduleEntity> entities = scheduleRepository.findByProfessionalId(professionalId);
+        List<WeeklySchedule> schedules = entities.stream()
+                .map(e -> WeeklySchedule.builder()
+                        .id(e.getId())
+                        .professionalId(e.getProfessionalId())
+                        .dayOfWeek(e.getDayOfWeek())
+                        .startTime(e.getStartTime())
+                        .endTime(e.getEndTime())
+                        .slotDurationMinutes(e.getSlotDurationMinutes())
+                        .enabled(e.getEnabled())
+                        .createdAt(e.getCreatedAt())
+                        .updatedAt(e.getUpdatedAt())
+                        .build())
+                .toList();
         return ResponseEntity.ok(schedules);
     }
 }

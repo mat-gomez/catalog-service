@@ -1,6 +1,5 @@
 package ar.edu.um.catalog.service;
 
-import ar.edu.um.catalog.domain.*;
 import ar.edu.um.catalog.adapters.out.persistence.*;
 import ar.edu.um.catalog.ports.in.CatalogSyncUseCase;
 import lombok.RequiredArgsConstructor;
@@ -11,6 +10,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.client.RestClient;
 
 import java.time.Instant;
+import java.time.LocalTime;
 import java.util.List;
 import java.util.Map;
 
@@ -42,61 +42,67 @@ public class CatalogSyncService implements CatalogSyncUseCase {
         Integer snapshotVersionInt = (Integer) response.get("snapshotVersion");
         Long snapshotVersion = snapshotVersionInt.longValue();
 
-        List<Map<String, Object>> catList = (List<Map<String, Object>>) response.get("professionalCategories");
-        if (catList != null) {
-            for (Map<String, Object> c : catList) {
-                ProfessionalCategory cat = ProfessionalCategory.builder()
-                        .id(((Number) c.get("id")).longValue())
-                        .name((String) c.get("name"))
-                        .description((String) c.get("description"))
-                        .enabled((Boolean) c.get("enabled"))
-                        .createdAt(parseInstant(c.get("createdAt")))
-                        .updatedAt(parseInstant(c.get("updatedAt")))
-                        .build();
-                categoryRepository.save(cat);
+        Object catObj = response.get("professionalCategories");
+        if (catObj instanceof List<?>) {
+            List<?> catList = (List<?>) catObj;
+            for (Object item : catList) {
+                if (item instanceof Map<?, ?> c) {
+                    ProfessionalCategoryEntity catEntity = new ProfessionalCategoryEntity();
+                    catEntity.setId(((Number) c.get("id")).longValue());
+                    catEntity.setName((String) c.get("name"));
+                    catEntity.setDescription((String) c.get("description"));
+                    catEntity.setEnabled((Boolean) c.get("enabled"));
+                    catEntity.setCreatedAt(parseInstant(c.get("createdAt")));
+                    catEntity.setUpdatedAt(parseInstant(c.get("updatedAt")));
+                    categoryRepository.save(catEntity);
+                }
             }
         }
 
-        List<Map<String, Object>> profList = (List<Map<String, Object>>) response.get("professionals");
-        if (profList != null) {
-            for (Map<String, Object> p : profList) {
-                Professional prof = Professional.builder()
-                        .id(((Number) p.get("id")).longValue())
-                        .categoryId(((Number) p.get("categoryId")).longValue())
-                        .firstName((String) p.get("firstName"))
-                        .lastName((String) p.get("lastName"))
-                        .enabled((Boolean) p.get("enabled"))
-                        .createdAt(parseInstant(p.get("createdAt")))
-                        .updatedAt(parseInstant(p.get("updatedAt")))
-                        .build();
-                professionalRepository.save(prof);
+        Object profObj = response.get("professionals");
+        if (profObj instanceof List<?>) {
+            List<?> profList = (List<?>) profObj;
+            for (Object item : profList) {
+                if (item instanceof Map<?, ?> p) {
+                    ProfessionalEntity profEntity = new ProfessionalEntity();
+                    profEntity.setId(((Number) p.get("id")).longValue());
+                    profEntity.setCategoryId(((Number) p.get("categoryId")).longValue());
+                    profEntity.setFirstName((String) p.get("firstName"));
+                    profEntity.setLastName((String) p.get("lastName"));
+                    profEntity.setEnabled((Boolean) p.get("enabled"));
+                    profEntity.setCreatedAt(parseInstant(p.get("createdAt")));
+                    profEntity.setUpdatedAt(parseInstant(p.get("updatedAt")));
+                    professionalRepository.save(profEntity);
+                }
             }
         }
 
-        List<Map<String, Object>> schedList = (List<Map<String, Object>>) response.get("weeklySchedules");
-        if (schedList != null) {
-            for (Map<String, Object> s : schedList) {
-                WeeklySchedule sched = WeeklySchedule.builder()
-                        .id(((Number) s.get("id")).longValue())
-                        .professionalId(((Number) s.get("professionalId")).longValue())
-                        .dayOfWeek((String) s.get("dayOfWeek"))
-                        .startTime(java.time.LocalTime.parse((String) s.get("startTime")))
-                        .endTime(java.time.LocalTime.parse((String) s.get("endTime")))
-                        .slotDurationMinutes(((Number) s.get("slotDurationMinutes")).intValue())
-                        .enabled((Boolean) s.get("enabled"))
-                        .createdAt(parseInstant(s.get("createdAt")))
-                        .updatedAt(parseInstant(s.get("updatedAt")))
-                        .build();
-                scheduleRepository.save(sched);
+        Object schedObj = response.get("weeklySchedules");
+        if (schedObj instanceof List<?>) {
+            List<?> schedList = (List<?>) schedObj;
+            for (Object item : schedList) {
+                if (item instanceof Map<?, ?> s) {
+                    WeeklyScheduleEntity schedEntity = new WeeklyScheduleEntity();
+                    schedEntity.setId(((Number) s.get("id")).longValue());
+                    schedEntity.setProfessionalId(((Number) s.get("professionalId")).longValue());
+                    schedEntity.setDayOfWeek((String) s.get("dayOfWeek"));
+                    schedEntity.setStartTime(LocalTime.parse((String) s.get("startTime")));
+                    schedEntity.setEndTime(LocalTime.parse((String) s.get("endTime")));
+                    schedEntity.setSlotDurationMinutes(((Number) s.get("slotDurationMinutes")).intValue());
+                    schedEntity.setEnabled((Boolean) s.get("enabled"));
+                    schedEntity.setCreatedAt(parseInstant(s.get("createdAt")));
+                    schedEntity.setUpdatedAt(parseInstant(s.get("updatedAt")));
+                    scheduleRepository.save(schedEntity);
+                }
             }
         }
 
-        CatalogSyncState state = syncStateRepository.findById(1L).orElse(new CatalogSyncState());
+        CatalogSyncStateEntity state = syncStateRepository.findById(1L).orElse(new CatalogSyncStateEntity());
         state.setId(1L);
         state.setCurrentVersion(snapshotVersion);
         state.setLastSyncedAt(Instant.now());
         state.setStatus("SUCCESS");
-        state.setErrorMessage(null);
+
         syncStateRepository.save(state);
 
         log.info("Sincronizacion completa finalizada con exito. Version aplicada: {}", snapshotVersion);
