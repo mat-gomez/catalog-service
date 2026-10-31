@@ -10,9 +10,12 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.http.ResponseEntity;
 
-import java.util.Collections;
+import java.time.Instant;
+import java.time.LocalTime;
+import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
@@ -39,22 +42,53 @@ class CatalogControllerTest {
 
     @Test
     void testGetAllCategories() {
-        when(categoryRepository.findAll()).thenReturn(Collections.emptyList());
+        ProfessionalCategoryEntity entity = new ProfessionalCategoryEntity();
+        entity.setId(1L);
+        entity.setName("Cardiologia");
+        entity.setDescription("Test");
+        entity.setEnabled(true);
+        entity.setCreatedAt(Instant.now());
+        entity.setUpdatedAt(Instant.now());
+
+        when(categoryRepository.findAll()).thenReturn(List.of(entity));
+
         ResponseEntity<?> response = catalogController.getAllCategories();
         assertNotNull(response);
     }
 
     @Test
     void testSearchProfessionals() {
-        when(professionalRepository.findByFilters(any(), any(), any())).thenReturn(Collections.emptyList());
-        ResponseEntity<?> response = catalogController.searchProfessionals(1L, "Test", true);
+        ProfessionalEntity entity = new ProfessionalEntity();
+        entity.setId(10L);
+        entity.setCategoryId(1L);
+        entity.setFirstName("Juan");
+        entity.setLastName("Perez");
+        entity.setEnabled(true);
+        entity.setCreatedAt(Instant.now());
+        entity.setUpdatedAt(Instant.now());
+
+        when(professionalRepository.findByFilters(any(), any(), any())).thenReturn(List.of(entity));
+
+        ResponseEntity<?> response = catalogController.searchProfessionals(1L, "Juan", true);
         assertNotNull(response);
     }
 
     @Test
     void testGetProfessionalSchedules() {
-        when(scheduleRepository.findByProfessionalId(anyLong())).thenReturn(Collections.emptyList());
-        ResponseEntity<?> response = catalogController.getProfessionalSchedules(1L);
+        WeeklyScheduleEntity entity = new WeeklyScheduleEntity();
+        entity.setId(100L);
+        entity.setProfessionalId(10L);
+        entity.setDayOfWeek("MONDAY");
+        entity.setStartTime(LocalTime.of(8, 0));
+        entity.setEndTime(LocalTime.of(12, 0));
+        entity.setSlotDurationMinutes(30);
+        entity.setEnabled(true);
+        entity.setCreatedAt(Instant.now());
+        entity.setUpdatedAt(Instant.now());
+
+        when(scheduleRepository.findByProfessionalId(anyLong())).thenReturn(List.of(entity));
+
+        ResponseEntity<?> response = catalogController.getProfessionalSchedules(10L);
         assertNotNull(response);
     }
 }
