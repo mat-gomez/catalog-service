@@ -1,7 +1,6 @@
 package ar.edu.um.catalog.service;
 
 import ar.edu.um.catalog.adapters.out.persistence.*;
-import ar.edu.um.catalog.ports.in.CatalogSyncUseCase;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
