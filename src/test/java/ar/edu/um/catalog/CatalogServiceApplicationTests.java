@@ -3,6 +3,8 @@ package ar.edu.um.catalog;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
 
+import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
+
 @SpringBootTest
 class CatalogServiceApplicationTests {
 
@@ -10,4 +12,8 @@ class CatalogServiceApplicationTests {
 	void contextLoads() {
 	}
 
+	@Test
+	void testMainMethod() {
+		assertDoesNotThrow(() -> CatalogServiceApplication.main(new String[]{}));
+	}
 }
