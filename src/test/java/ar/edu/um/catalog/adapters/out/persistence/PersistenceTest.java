@@ -5,6 +5,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 
 import java.time.Instant;
+import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -19,14 +20,16 @@ class PersistenceTest {
 
     @Test
     void testProcessedKafkaEventRepository() {
+        String uniqueEventId = "evt-" + UUID.randomUUID().toString();
+
         ProcessedKafkaEventEntity event = ProcessedKafkaEventEntity.builder()
-                .eventId("evt-test-123")
+                .eventId(uniqueEventId)
                 .processedAt(Instant.now())
                 .build();
 
         processedEventRepository.save(event);
 
-        boolean exists = processedEventRepository.existsByEventId("evt-test-123");
+        boolean exists = processedEventRepository.existsByEventId(uniqueEventId);
         assertThat(exists).isTrue();
     }
 
