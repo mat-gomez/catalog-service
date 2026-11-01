@@ -1,6 +1,5 @@
 package ar.edu.um.catalog.service;
 
-import ar.edu.um.catalog.domain.*;
 import ar.edu.um.catalog.adapters.out.persistence.*;
 import ar.edu.um.catalog.ports.in.CatalogSyncUseCase;
 import lombok.RequiredArgsConstructor;
@@ -11,6 +10,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.client.RestClient;
 
 import java.time.Instant;
+import java.time.LocalTime;
 import java.util.List;
 import java.util.Map;
 
@@ -18,6 +18,24 @@ import java.util.Map;
 @Service
 @RequiredArgsConstructor
 public class CatalogSyncService implements CatalogSyncUseCase {
+
+    private static final String FIELD_ID = "id";
+    private static final String FIELD_NAME = "name";
+    private static final String FIELD_DESCRIPTION = "description";
+    private static final String FIELD_ENABLED = "enabled";
+    private static final String FIELD_CREATED_AT = "createdAt";
+    private static final String FIELD_UPDATED_AT = "updatedAt";
+    private static final String FIELD_CATEGORY_ID = "categoryId";
+    private static final String FIELD_FIRST_NAME = "firstName";
+    private static final String FIELD_LAST_NAME = "lastName";
+    private static final String FIELD_PROFESSIONAL_ID = "professionalId";
+    private static final String FIELD_DAY_OF_WEEK = "dayOfWeek";
+    private static final String FIELD_START_TIME = "startTime";
+    private static final String FIELD_END_TIME = "endTime";
+    private static final String FIELD_SLOT_DURATION_MINUTES = "slotDurationMinutes";
+
+    private static final String SNAPSHOT_URI = "/api/synchronization/snapshot";
+    private static final String ERROR_SNAPSHOT_MSG = "No se pudo obtener el snapshot del catalogo desde la catedra.";
 
     private final RestClient catedraRestClient;
     private final ProfessionalCategoryRepository categoryRepository;
@@ -31,75 +49,88 @@ public class CatalogSyncService implements CatalogSyncUseCase {
         log.info("Iniciando sincronizacion completa por Snapshot...");
 
         Map<String, Object> response = catedraRestClient.get()
-                .uri("/api/synchronization/snapshot")
+                .uri(SNAPSHOT_URI)
                 .retrieve()
                 .body(new ParameterizedTypeReference<>() {});
 
         if (response == null) {
-            throw new RuntimeException("No se pudo obtener el snapshot del catalogo desde la catedra.");
+            throw new IllegalStateException(ERROR_SNAPSHOT_MSG);
         }
 
         Integer snapshotVersionInt = (Integer) response.get("snapshotVersion");
-        Long snapshotVersion = snapshotVersionInt.longValue();
+        Long snapshotVersion = snapshotVersionInt != null ? snapshotVersionInt.longValue() : 0L;
 
-        List<Map<String, Object>> catList = (List<Map<String, Object>>) response.get("professionalCategories");
-        if (catList != null) {
-            for (Map<String, Object> c : catList) {
-                ProfessionalCategory cat = ProfessionalCategory.builder()
-                        .id(((Number) c.get("id")).longValue())
-                        .name((String) c.get("name"))
-                        .description((String) c.get("description"))
-                        .enabled((Boolean) c.get("enabled"))
-                        .createdAt(parseInstant(c.get("createdAt")))
-                        .updatedAt(parseInstant(c.get("updatedAt")))
-                        .build();
-                categoryRepository.save(cat);
+        processCategories(response.get("professionalCategories"));
+        processProfessionals(response.get("professionals"));
+        processSchedules(response.get("weeklySchedules"));
+
+        updateSyncState(snapshotVersion);
+
+        log.info("Sincronizacion completa finalizada con exito. Version aplicada: {}", snapshotVersion);
+    }
+
+    private void processCategories(Object catObj) {
+        if (catObj instanceof List<?> catList) {
+            for (Object item : catList) {
+                if (item instanceof Map<?, ?> c) {
+                    ProfessionalCategoryEntity entity = new ProfessionalCategoryEntity();
+                    entity.setId(((Number) c.get(FIELD_ID)).longValue());
+                    entity.setName((String) c.get(FIELD_NAME));
+                    entity.setDescription((String) c.get(FIELD_DESCRIPTION));
+                    entity.setEnabled((Boolean) c.get(FIELD_ENABLED));
+                    entity.setCreatedAt(parseInstant(c.get(FIELD_CREATED_AT)));
+                    entity.setUpdatedAt(parseInstant(c.get(FIELD_UPDATED_AT)));
+                    categoryRepository.save(entity);
+                }
             }
         }
+    }
 
-        List<Map<String, Object>> profList = (List<Map<String, Object>>) response.get("professionals");
-        if (profList != null) {
-            for (Map<String, Object> p : profList) {
-                Professional prof = Professional.builder()
-                        .id(((Number) p.get("id")).longValue())
-                        .categoryId(((Number) p.get("categoryId")).longValue())
-                        .firstName((String) p.get("firstName"))
-                        .lastName((String) p.get("lastName"))
-                        .enabled((Boolean) p.get("enabled"))
-                        .createdAt(parseInstant(p.get("createdAt")))
-                        .updatedAt(parseInstant(p.get("updatedAt")))
-                        .build();
-                professionalRepository.save(prof);
+    private void processProfessionals(Object profObj) {
+        if (profObj instanceof List<?> profList) {
+            for (Object item : profList) {
+                if (item instanceof Map<?, ?> p) {
+                    ProfessionalEntity entity = new ProfessionalEntity();
+                    entity.setId(((Number) p.get(FIELD_ID)).longValue());
+                    entity.setCategoryId(((Number) p.get(FIELD_CATEGORY_ID)).longValue());
+                    entity.setFirstName((String) p.get(FIELD_FIRST_NAME));
+                    entity.setLastName((String) p.get(FIELD_LAST_NAME));
+                    entity.setEnabled((Boolean) p.get(FIELD_ENABLED));
+                    entity.setCreatedAt(parseInstant(p.get(FIELD_CREATED_AT)));
+                    entity.setUpdatedAt(parseInstant(p.get(FIELD_UPDATED_AT)));
+                    professionalRepository.save(entity);
+                }
             }
         }
+    }
 
-        List<Map<String, Object>> schedList = (List<Map<String, Object>>) response.get("weeklySchedules");
-        if (schedList != null) {
-            for (Map<String, Object> s : schedList) {
-                WeeklySchedule sched = WeeklySchedule.builder()
-                        .id(((Number) s.get("id")).longValue())
-                        .professionalId(((Number) s.get("professionalId")).longValue())
-                        .dayOfWeek((String) s.get("dayOfWeek"))
-                        .startTime(java.time.LocalTime.parse((String) s.get("startTime")))
-                        .endTime(java.time.LocalTime.parse((String) s.get("endTime")))
-                        .slotDurationMinutes(((Number) s.get("slotDurationMinutes")).intValue())
-                        .enabled((Boolean) s.get("enabled"))
-                        .createdAt(parseInstant(s.get("createdAt")))
-                        .updatedAt(parseInstant(s.get("updatedAt")))
-                        .build();
-                scheduleRepository.save(sched);
+    private void processSchedules(Object schedObj) {
+        if (schedObj instanceof List<?> schedList) {
+            for (Object item : schedList) {
+                if (item instanceof Map<?, ?> s) {
+                    WeeklyScheduleEntity entity = new WeeklyScheduleEntity();
+                    entity.setId(((Number) s.get(FIELD_ID)).longValue());
+                    entity.setProfessionalId(((Number) s.get(FIELD_PROFESSIONAL_ID)).longValue());
+                    entity.setDayOfWeek((String) s.get(FIELD_DAY_OF_WEEK));
+                    entity.setStartTime(LocalTime.parse((String) s.get(FIELD_START_TIME)));
+                    entity.setEndTime(LocalTime.parse((String) s.get(FIELD_END_TIME)));
+                    entity.setSlotDurationMinutes(((Number) s.get(FIELD_SLOT_DURATION_MINUTES)).intValue());
+                    entity.setEnabled((Boolean) s.get(FIELD_ENABLED));
+                    entity.setCreatedAt(parseInstant(s.get(FIELD_CREATED_AT)));
+                    entity.setUpdatedAt(parseInstant(s.get(FIELD_UPDATED_AT)));
+                    scheduleRepository.save(entity);
+                }
             }
         }
+    }
 
-        CatalogSyncState state = syncStateRepository.findById(1L).orElse(new CatalogSyncState());
+    private void updateSyncState(Long snapshotVersion) {
+        CatalogSyncStateEntity state = syncStateRepository.findById(1L).orElseGet(CatalogSyncStateEntity::new);
         state.setId(1L);
         state.setCurrentVersion(snapshotVersion);
         state.setLastSyncedAt(Instant.now());
         state.setStatus("SUCCESS");
-        state.setErrorMessage(null);
         syncStateRepository.save(state);
-
-        log.info("Sincronizacion completa finalizada con exito. Version aplicada: {}", snapshotVersion);
     }
 
     private Instant parseInstant(Object val) {
