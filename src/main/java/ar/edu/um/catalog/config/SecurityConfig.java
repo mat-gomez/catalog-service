@@ -15,7 +15,6 @@ public class SecurityConfig {
     public SecurityFilterChain securityFilterChain(HttpSecurity http) {
         try {
             http
-                    .csrf(csrf -> csrf.ignoringRequestMatchers("/api/**"))
                     .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                     .authorizeHttpRequests(auth -> auth
                             .anyRequest().authenticated()
