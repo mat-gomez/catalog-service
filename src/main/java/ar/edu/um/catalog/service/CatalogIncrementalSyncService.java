@@ -84,7 +84,6 @@ public class CatalogIncrementalSyncService implements CatalogIncrementalSyncUseC
             JsonNode rootNode = objectMapper.readTree(changesJson);
             JsonNode changesNode = rootNode.path("changes");
 
-            // 1. Procesar Categorías
             JsonNode categoriesNode = changesNode.path("professionalCategories");
             if (categoriesNode.isArray()) {
                 for (JsonNode idNode : categoriesNode) {
@@ -99,7 +98,6 @@ public class CatalogIncrementalSyncService implements CatalogIncrementalSyncUseC
                 }
             }
 
-            // 2. Procesar Profesionales
             JsonNode professionalsNode = changesNode.path("professionals");
             if (professionalsNode.isArray()) {
                 for (JsonNode idNode : professionalsNode) {
@@ -114,7 +112,6 @@ public class CatalogIncrementalSyncService implements CatalogIncrementalSyncUseC
                 }
             }
 
-            // 3. Procesar Horarios Semanales
             JsonNode schedulesNode = changesNode.path("weeklySchedules");
             if (schedulesNode.isArray()) {
                 for (JsonNode idNode : schedulesNode) {

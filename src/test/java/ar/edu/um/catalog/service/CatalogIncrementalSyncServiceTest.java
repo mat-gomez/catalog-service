@@ -69,7 +69,6 @@ class CatalogIncrementalSyncServiceTest {
         when(syncStateRepository.findById(1L)).thenReturn(Optional.of(existingState));
         when(redisAdapter.getOldestAvailableVersion()).thenReturn(1L);
 
-        // Simulamos el JSON de cambios vacío que define la cátedra
         when(redisAdapter.getChangesJson(2L)).thenReturn("{\"version\":2, \"changes\":{\"professionalCategories\":[], \"professionals\":[], \"weeklySchedules\":[]}}");
 
         catalogIncrementalSyncService.processCatalogUpdate("evt-456", 2L);
@@ -90,17 +89,14 @@ class CatalogIncrementalSyncServiceTest {
         when(syncStateRepository.findById(1L)).thenReturn(Optional.of(existingState));
         when(redisAdapter.getOldestAvailableVersion()).thenReturn(1L);
 
-        // 1. Simulamos el JSON de cambios que trae la lista de IDs afectados (según contrato oficial)
         String changesJson = "{\"version\":2, \"changes\":{\"professionalCategories\":[10], \"professionals\":[], \"weeklySchedules\":[]}}";
         when(redisAdapter.getChangesJson(2L)).thenReturn(changesJson);
 
-        // 2. Simulamos que cuando el servicio vaya a buscar la entidad al Hash de Redis, este devuelva el JSON completo de la categoría
         String categoryJson = "{\"id\":10, \"name\":\"Cardiología\", \"enabled\":true}";
         when(redisAdapter.getEntityJson(eq("professional-categories"), eq(10L))).thenReturn(categoryJson);
 
         catalogIncrementalSyncService.processCatalogUpdate("evt-999", 2L);
 
-        // Verificamos que se haya guardado la categoría obtenida desde Redis en PostgreSQL
         verify(categoryRepository, times(1)).save(any(ProfessionalCategoryEntity.class));
         verify(syncStateRepository, times(1)).save(any());
         verify(processedEventRepository, times(1)).save(any());
