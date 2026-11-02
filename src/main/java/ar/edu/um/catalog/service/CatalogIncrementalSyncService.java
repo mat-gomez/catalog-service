@@ -84,50 +84,76 @@ public class CatalogIncrementalSyncService implements CatalogIncrementalSyncUseC
             JsonNode rootNode = objectMapper.readTree(changesJson);
             JsonNode changesNode = rootNode.path("changes");
 
-            JsonNode categoriesNode = changesNode.path("professionalCategories");
-            if (categoriesNode.isArray()) {
-                for (JsonNode idNode : categoriesNode) {
-                    Long id = idNode.asLong();
-                    String entityJson = redisAdapter.getEntityJson("professional-categories", id);
-                    if (entityJson != null) {
-                        ProfessionalCategoryEntity entity = objectMapper.readValue(entityJson, ProfessionalCategoryEntity.class);
-                        categoryRepository.save(entity);
-                    } else {
-                        log.warn("No se encontro la categoria con ID {} en Redis", id);
-                    }
-                }
-            }
+            procesarCategorias(changesNode);
+            procesarProfesionales(changesNode);
+            procesarHorarios(changesNode);
 
-            JsonNode professionalsNode = changesNode.path("professionals");
-            if (professionalsNode.isArray()) {
-                for (JsonNode idNode : professionalsNode) {
-                    Long id = idNode.asLong();
-                    String entityJson = redisAdapter.getEntityJson("professionals", id);
-                    if (entityJson != null) {
-                        ProfessionalEntity entity = objectMapper.readValue(entityJson, ProfessionalEntity.class);
-                        professionalRepository.save(entity);
-                    } else {
-                        log.warn("No se encontro el profesional con ID {} en Redis", id);
-                    }
-                }
-            }
-
-            JsonNode schedulesNode = changesNode.path("weeklySchedules");
-            if (schedulesNode.isArray()) {
-                for (JsonNode idNode : schedulesNode) {
-                    Long id = idNode.asLong();
-                    String entityJson = redisAdapter.getEntityJson("weekly-schedules", id);
-                    if (entityJson != null) {
-                        WeeklyScheduleEntity entity = objectMapper.readValue(entityJson, WeeklyScheduleEntity.class);
-                        scheduleRepository.save(entity);
-                    } else {
-                        log.warn("No se encontro el horario con ID {} en Redis", id);
-                    }
-                }
-            }
         } catch (Exception e) {
             log.error("Error al deserializar y aplicar los cambios desde Redis", e);
             throw new RuntimeException("Fallo en la mutacion de datos del catalogo", e);
+        }
+    }
+
+    private void procesarCategorias(JsonNode changesNode) {
+        JsonNode categoriesNode = changesNode.path("professionalCategories");
+        if (categoriesNode.isArray()) {
+            for (JsonNode idNode : categoriesNode) {
+                Long id = idNode.asLong();
+                String entityJson = redisAdapter.getEntityJson("professional-categories", id);
+                if (entityJson != null) {
+                    try {
+                        ProfessionalCategoryEntity entity = objectMapper.readValue(entityJson, ProfessionalCategoryEntity.class);
+                        categoryRepository.save(entity);
+                    } catch (Exception e) {
+                        log.error("Error al parsear categoria ID {}", id, e);
+                        throw new RuntimeException("Error parseando categoria " + id, e);
+                    }
+                } else {
+                    log.warn("No se encontro la categoria con ID {} en Redis", id);
+                }
+            }
+        }
+    }
+
+    private void procesarProfesionales(JsonNode changesNode) {
+        JsonNode professionalsNode = changesNode.path("professionals");
+        if (professionalsNode.isArray()) {
+            for (JsonNode idNode : professionalsNode) {
+                Long id = idNode.asLong();
+                String entityJson = redisAdapter.getEntityJson("professionals", id);
+                if (entityJson != null) {
+                    try {
+                        ProfessionalEntity entity = objectMapper.readValue(entityJson, ProfessionalEntity.class);
+                        professionalRepository.save(entity);
+                    } catch (Exception e) {
+                        log.error("Error al parsear profesional ID {}", id, e);
+                        throw new RuntimeException("Error parseando profesional " + id, e);
+                    }
+                } else {
+                    log.warn("No se encontro el profesional con ID {} en Redis", id);
+                }
+            }
+        }
+    }
+
+    private void procesarHorarios(JsonNode changesNode) {
+        JsonNode schedulesNode = changesNode.path("weeklySchedules");
+        if (schedulesNode.isArray()) {
+            for (JsonNode idNode : schedulesNode) {
+                Long id = idNode.asLong();
+                String entityJson = redisAdapter.getEntityJson("weekly-schedules", id);
+                if (entityJson != null) {
+                    try {
+                        WeeklyScheduleEntity entity = objectMapper.readValue(entityJson, WeeklyScheduleEntity.class);
+                        scheduleRepository.save(entity);
+                    } catch (Exception e) {
+                        log.error("Error al parsear horario ID {}", id, e);
+                        throw new RuntimeException("Error parseando horario " + id, e);
+                    }
+                } else {
+                    log.warn("No se encontro el horario con ID {} en Redis", id);
+                }
+            }
         }
     }
 }
