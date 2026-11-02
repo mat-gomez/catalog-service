@@ -4,6 +4,10 @@ server:
 spring:
   application:
     name: catalog-service
+  security:
+    user:
+      name: admin
+      password: admin
   datasource:
     url: jdbc:postgresql://${DB_HOST:localhost}:${DB_PORT:5433}/${DB_NAME:catalog_db}
     username: ${DB_USER:catalog_user}
@@ -11,11 +15,14 @@ spring:
     driver-class-name: org.postgresql.Driver
   jpa:
     hibernate:
-      ddl-auto: update
+      ddl-auto: validate
     show-sql: false
     properties:
       hibernate:
         format_sql: true
+  flyway:
+    enabled: true
+    baseline-on-migrate: true
   data:
     redis:
       host: ${CATEDRA_REDIS_HOST:172.17.201.1}
@@ -38,3 +45,11 @@ catedra:
     jwt-token: ${CATEDRA_JWT_TOKEN:}
   kafka:
     catalog-topic: ${CATEDRA_CATALOG_TOPIC:catedra.catalog.proyecto-melina-gomez}
+
+management:
+  endpoint:
+    health:
+      show-details: always
+  health:
+    redis:
+      enabled: false
