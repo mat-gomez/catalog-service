@@ -1,6 +1,7 @@
 package ar.edu.um.catalog;
 
 import ar.edu.um.catalog.adapters.out.persistence.*;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
@@ -9,6 +10,7 @@ import org.springframework.context.annotation.Bean;
 import java.time.Instant;
 import java.time.LocalTime;
 
+@Slf4j
 @SpringBootApplication
 public class CatalogServiceApplication {
 
@@ -53,7 +55,7 @@ public class CatalogServiceApplication {
 						.updatedAt(Instant.now())
 						.build());
 
-				System.out.println(">>> ¡Datos de prueba insertados exitosamente!");
+				log.info(">>> ¡Datos de prueba insertados exitosamente!");
 			}
 		};
 	}
