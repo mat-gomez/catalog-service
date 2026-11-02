@@ -141,4 +141,43 @@ class CatalogIncrementalSyncServiceTest {
         verify(fullSyncService, times(1)).executeFullSnapshotSync();
         verify(processedEventRepository, times(1)).save(any());
     }
+
+    @Test
+    void testProcessCatalogUpdate_MissingChangesJson() {
+        when(processedEventRepository.existsByEventId(anyString())).thenReturn(false);
+
+        CatalogSyncStateEntity existingState = new CatalogSyncStateEntity();
+        existingState.setId(1L);
+        existingState.setCurrentVersion(1L);
+
+        when(syncStateRepository.findById(1L)).thenReturn(Optional.of(existingState));
+        when(redisAdapter.getOldestAvailableVersion()).thenReturn(1L);
+        when(redisAdapter.getChangesJson(2L)).thenReturn(null);
+
+        catalogIncrementalSyncService.processCatalogUpdate("evt-null-delta", 2L);
+
+        verify(syncStateRepository, times(1)).save(any(CatalogSyncStateEntity.class));
+        verify(processedEventRepository, times(1)).save(any());
+    }
+
+    @Test
+    void testProcessCatalogUpdate_EntityNotFoundInRedis() {
+        when(processedEventRepository.existsByEventId(anyString())).thenReturn(false);
+
+        CatalogSyncStateEntity existingState = new CatalogSyncStateEntity();
+        existingState.setId(1L);
+        existingState.setCurrentVersion(1L);
+
+        when(syncStateRepository.findById(1L)).thenReturn(Optional.of(existingState));
+        when(redisAdapter.getOldestAvailableVersion()).thenReturn(1L);
+
+        String changesJson = "{\"version\":2, \"changes\":{\"professionalCategories\":[99], \"professionals\":[], \"weeklySchedules\":[]}}";
+        when(redisAdapter.getChangesJson(2L)).thenReturn(changesJson);
+        when(redisAdapter.getEntityJson("professional-categories", 99L)).thenReturn(null);
+
+        catalogIncrementalSyncService.processCatalogUpdate("evt-missing-entity", 2L);
+
+        verify(categoryRepository, never()).save(any());
+        verify(syncStateRepository, times(1)).save(any());
+    }
 }
