@@ -180,4 +180,49 @@ class CatalogIncrementalSyncServiceTest {
         verify(categoryRepository, never()).save(any());
         verify(syncStateRepository, times(1)).save(any());
     }
+
+    @Test
+    void testProcessCatalogUpdate_JsonNodeNotAnArray() {
+        when(processedEventRepository.existsByEventId(anyString())).thenReturn(false);
+
+        CatalogSyncStateEntity existingState = new CatalogSyncStateEntity();
+        existingState.setId(1L);
+        existingState.setCurrentVersion(1L);
+
+        when(syncStateRepository.findById(1L)).thenReturn(Optional.of(existingState));
+        when(redisAdapter.getOldestAvailableVersion()).thenReturn(1L);
+
+        String changesJson = "{\"version\":2, \"changes\":{\"professionalCategories\":\"not-an-array\", \"professionals\":null, \"weeklySchedules\":[]}}";
+        when(redisAdapter.getChangesJson(2L)).thenReturn(changesJson);
+
+        catalogIncrementalSyncService.processCatalogUpdate("evt-not-array", 2L);
+
+        verify(syncStateRepository, times(1)).save(any());
+        verify(processedEventRepository, times(1)).save(any());
+    }
+
+    @Test
+    void testProcessCatalogUpdate_CatchExceptionDuringParsing() {
+        when(processedEventRepository.existsByEventId(anyString())).thenReturn(false);
+
+        CatalogSyncStateEntity existingState = new CatalogSyncStateEntity();
+        existingState.setId(1L);
+        existingState.setCurrentVersion(1L);
+
+        when(syncStateRepository.findById(1L)).thenReturn(Optional.of(existingState));
+        when(redisAdapter.getOldestAvailableVersion()).thenReturn(1L);
+
+        String changesJson = "{\"version\":2, \"changes\":{\"professionalCategories\":[10], \"professionals\":[], \"weeklySchedules\":[]}}";
+        when(redisAdapter.getChangesJson(2L)).thenReturn(changesJson);
+
+        when(redisAdapter.getEntityJson("professional-categories", 10L)).thenReturn("{invalid-json}");
+
+        try {
+            catalogIncrementalSyncService.processCatalogUpdate("evt-exception", 2L);
+        } catch (RuntimeException e) {
+        }
+
+        verify(processedEventRepository, never()).save(any());
+    }
 }
+
