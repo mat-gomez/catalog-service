@@ -5,7 +5,7 @@ import lombok.*;
 import java.time.Instant;
 
 @Entity
-@Table(name = "professional_categories")
+@Table(name = "professional_category")
 @Getter @Setter @NoArgsConstructor @AllArgsConstructor @Builder
 public class ProfessionalCategoryEntity {
     @Id
