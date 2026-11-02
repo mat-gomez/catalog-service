@@ -11,12 +11,11 @@ import static org.springframework.security.config.Customizer.withDefaults;
 @Configuration
 public class SecurityConfig {
 
-    @SuppressWarnings("java:S5122")
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) {
         try {
             http
-                    .csrf(csrf -> csrf.disable())
+                    .csrf(csrf -> csrf.ignoringRequestMatchers("/api/**"))
                     .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                     .authorizeHttpRequests(auth -> auth
                             .anyRequest().authenticated()
@@ -25,7 +24,7 @@ public class SecurityConfig {
 
             return http.build();
         } catch (Exception e) {
-            throw new IllegalStateException("Error al configurar la cadena de seguridad", e);
+            throw new IllegalStateException("Error al configurar la seguridad", e);
         }
     }
 }
