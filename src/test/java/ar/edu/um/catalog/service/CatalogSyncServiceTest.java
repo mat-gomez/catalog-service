@@ -90,6 +90,10 @@ class CatalogSyncServiceTest {
 
         assertDoesNotThrow(() -> catalogSyncService.executeFullSnapshotSync());
 
+        verify(scheduleRepository, times(1)).deleteAll();
+        verify(professionalRepository, times(1)).deleteAll();
+        verify(categoryRepository, times(1)).deleteAll();
+
         verify(categoryRepository, times(1)).save(any(ProfessionalCategoryEntity.class));
         verify(professionalRepository, times(1)).save(any(ProfessionalEntity.class));
         verify(scheduleRepository, times(1)).save(any(WeeklyScheduleEntity.class));
@@ -104,5 +108,9 @@ class CatalogSyncServiceTest {
         when(responseSpec.body(any(ParameterizedTypeReference.class))).thenReturn(null);
 
         assertThrows(IllegalStateException.class, () -> catalogSyncService.executeFullSnapshotSync());
+
+        verify(scheduleRepository, never()).deleteAll();
+        verify(professionalRepository, never()).deleteAll();
+        verify(categoryRepository, never()).deleteAll();
     }
 }

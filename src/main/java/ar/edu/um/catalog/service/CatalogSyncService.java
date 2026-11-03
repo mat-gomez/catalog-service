@@ -60,6 +60,11 @@ public class CatalogSyncService implements CatalogSyncUseCase {
         Integer snapshotVersionInt = (Integer) response.get("snapshotVersion");
         Long snapshotVersion = snapshotVersionInt != null ? snapshotVersionInt.longValue() : 0L;
 
+        log.warn("Limpiando registros locales anteriores antes de aplicar el snapshot completo...");
+        scheduleRepository.deleteAll();
+        professionalRepository.deleteAll();
+        categoryRepository.deleteAll();
+
         processCategories(response.get("professionalCategories"));
         processProfessionals(response.get("professionals"));
         processSchedules(response.get("weeklySchedules"));
