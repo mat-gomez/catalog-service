@@ -27,7 +27,7 @@ public class SecurityConfig {
 
     @Bean
     @SuppressWarnings({"java:S4502", "java:S5122"})
-    public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
+    public SecurityFilterChain securityFilterChain(HttpSecurity http) {
         http
                 .cors(withDefaults())
                 .csrf(csrf -> csrf.disable())
