@@ -46,28 +46,34 @@ class ProfessionalRepositoryTest {
 
     @Test
     void testFindByFilters_NoFilters() {
-        List<ProfessionalEntity> results = repository.findByFilters(null, null, null);
+        List<ProfessionalEntity> results = repository.findByFilters(null, null, null, null);
         assertEquals(2, results.size());
     }
 
     @Test
     void testFindByFilters_ByCategoryId() {
-        List<ProfessionalEntity> results = repository.findByFilters(10L, null, null);
+        List<ProfessionalEntity> results = repository.findByFilters(10L, null, null, null);
         assertEquals(1, results.size());
         assertEquals("Juan", results.get(0).getFirstName());
     }
 
     @Test
     void testFindByFilters_ByName() {
-        List<ProfessionalEntity> results = repository.findByFilters(null, "mar", null);
+        List<ProfessionalEntity> results = repository.findByFilters(null, "mar", null, null);
         assertEquals(1, results.size());
         assertEquals("María", results.get(0).getFirstName());
     }
 
     @Test
     void testFindByFilters_ByEnabled() {
-        List<ProfessionalEntity> results = repository.findByFilters(null, null, true);
+        List<ProfessionalEntity> results = repository.findByFilters(null, null, true, null);
         assertEquals(1, results.size());
         assertTrue(results.get(0).getEnabled());
+    }
+
+    @Test
+    void testFindByFilters_ByDayOfWeek() {
+        List<ProfessionalEntity> results = repository.findByFilters(null, null, null, "MONDAY");
+        assertEquals(0, results.size());
     }
 }

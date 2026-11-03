@@ -12,8 +12,10 @@ public interface ProfessionalRepository extends JpaRepository<ProfessionalEntity
     @Query("SELECT p FROM ProfessionalEntity p WHERE (:categoryId IS NULL OR p.categoryId = :categoryId) " +
             "AND (:name IS NULL OR LOWER(p.firstName) LIKE LOWER(CONCAT('%', CAST(:name AS string), '%')) " +
             "OR LOWER(p.lastName) LIKE LOWER(CONCAT('%', CAST(:name AS string), '%'))) " +
-            "AND (:enabled IS NULL OR p.enabled = :enabled)")
+            "AND (:enabled IS NULL OR p.enabled = :enabled) " +
+            "AND (:dayOfWeek IS NULL OR EXISTS (SELECT w FROM WeeklyScheduleEntity w WHERE w.professionalId = p.id AND w.dayOfWeek = :dayOfWeek))")
     List<ProfessionalEntity> findByFilters(@Param("categoryId") Long categoryId,
                                            @Param("name") String name,
-                                           @Param("enabled") Boolean enabled);
+                                           @Param("enabled") Boolean enabled,
+                                           @Param("dayOfWeek") String dayOfWeek);
 }

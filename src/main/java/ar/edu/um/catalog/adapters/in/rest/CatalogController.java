@@ -52,9 +52,10 @@ public class CatalogController {
     public ResponseEntity<List<Professional>> searchProfessionals(
             @RequestParam(required = false) Long categoryId,
             @RequestParam(required = false) String name,
-            @RequestParam(required = false) Boolean enabled) {
+            @RequestParam(required = false) Boolean enabled,
+            @RequestParam(required = false) String dayOfWeek) { // <-- Filtro de disponibilidad agregado
 
-        List<ProfessionalEntity> entities = professionalRepository.findByFilters(categoryId, name, enabled);
+        List<ProfessionalEntity> entities = professionalRepository.findByFilters(categoryId, name, enabled, dayOfWeek);
 
         List<Professional> professionals = entities.stream()
                 .map(e -> Professional.builder()
