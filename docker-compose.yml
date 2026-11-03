@@ -16,5 +16,19 @@ services:
       timeout: 5s
       retries: 5
 
+  catalog-service:
+    build: .
+    container_name: catalog-app
+    ports:
+      - "8081:8081"
+    environment:
+      - SPRING_DATASOURCE_URL=jdbc:postgresql://catalog-db:5432/${DB_NAME:-catalog_db}
+      - SPRING_DATASOURCE_USERNAME=${DB_USER:-catalog_user}
+      - SPRING_DATASOURCE_PASSWORD=${DB_PASSWORD:-catalog_pass}
+      - SPRING_JPA_HIBERNATE_DDL_AUTO=update
+    depends_on:
+      catalog-db:
+        condition: service_healthy
+
 volumes:
   catalog_pgdata:
