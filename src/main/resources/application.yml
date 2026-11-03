@@ -5,9 +5,10 @@ spring:
   application:
     name: catalog-service
   security:
-    user:
-      name: admin
-      password: admin
+    oauth2:
+      resourceserver:
+        jwt:
+          secret-key: ${JWT_SECRET_KEY:${CATEDRA_JWT_TOKEN:clave-secreta-por-defecto-insegura}}
   datasource:
     url: jdbc:postgresql://${DB_HOST:localhost}:${DB_PORT:5433}/${DB_NAME:catalog_db}
     username: ${DB_USER:catalog_user}
@@ -44,7 +45,7 @@ catedra:
     base-url: ${CATEDRA_API_URL:http://172.17.201.1:8090}
     jwt-token: ${CATEDRA_JWT_TOKEN:}
   kafka:
-    catalog-topic: ${CATEDRA_CATALOG_TOPIC:catedra.catalog.proyecto-melina-gomez}
+    catalog-topic: ${CATED_CATALOG_TOPIC:catedra.catalog.proyecto-melina-gomez}
 
 management:
   endpoint:
