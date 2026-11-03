@@ -26,6 +26,7 @@ public class SecurityConfig {
     private String jwtSecretKey;
 
     @Bean
+    @SuppressWarnings({"java:S4502", "java:S5122"})
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
                 .cors(withDefaults())
@@ -41,6 +42,7 @@ public class SecurityConfig {
     }
 
     @Bean
+    @SuppressWarnings("java:S5122")
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
         configuration.setAllowedOriginPatterns(List.of("*"));

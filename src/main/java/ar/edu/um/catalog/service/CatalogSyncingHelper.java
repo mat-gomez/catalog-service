@@ -32,7 +32,14 @@ public class CatalogSyncingHelper {
         state.setId(1L);
         state.setLastSyncedAt(Instant.now());
         state.setStatus("ERROR");
-        state.setErrorMessage(errorMessage != null ? (errorMessage.length() > 1000 ? errorMessage.substring(0, 1000) : errorMessage) : "Error desconocido");
+        state.setErrorMessage(formatErrorMessage(errorMessage));
         syncStateRepository.save(state);
+    }
+
+    private String formatErrorMessage(String errorMessage) {
+        if (errorMessage == null) {
+            return "Error desconocido";
+        }
+        return errorMessage.length() > 1000 ? errorMessage.substring(0, 1000) : errorMessage;
     }
 }
