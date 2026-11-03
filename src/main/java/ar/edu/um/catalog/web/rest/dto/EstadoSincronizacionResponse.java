@@ -9,4 +9,5 @@ public class EstadoSincronizacionResponse {
     private Long currentVersion;
     private Long oldestAvailableVersion;
     private String status;
+    private String errorMessage;
 }

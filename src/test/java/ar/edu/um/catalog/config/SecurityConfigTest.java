@@ -27,7 +27,6 @@ class SecurityConfigTest {
     void testCorsConfigurationSourceBean() {
         assertThat(corsConfigurationSource).isNotNull();
 
-        // Creamos un request simulado para evitar el NullPointerException
         MockHttpServletRequest request = new MockHttpServletRequest("GET", "/api/catalog");
         assertThat(corsConfigurationSource.getCorsConfiguration(request)).isNotNull();
     }
