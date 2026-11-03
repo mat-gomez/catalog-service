@@ -41,37 +41,47 @@ public class CatalogSyncService implements CatalogSyncUseCase {
     private final ProfessionalCategoryRepository categoryRepository;
     private final ProfessionalRepository professionalRepository;
     private final WeeklyScheduleRepository scheduleRepository;
-    private final CatalogSyncStateRepository syncStateRepository;
+    private final CatalogSyncingHelper syncingHelper;
 
     @Override
     @Transactional
     public void executeFullSnapshotSync() {
         log.info("Iniciando sincronizacion completa por Snapshot...");
 
-        Map<String, Object> response = catedraRestClient.get()
-                .uri(SNAPSHOT_URI)
-                .retrieve()
-                .body(new ParameterizedTypeReference<>() {});
+        try {
+            Map<String, Object> response = catedraRestClient.get()
+                    .uri(SNAPSHOT_URI)
+                    .retrieve()
+                    .body(new ParameterizedTypeReference<>() {});
 
-        if (response == null) {
-            throw new IllegalStateException(ERROR_SNAPSHOT_MSG);
+            if (response == null) {
+                throw new IllegalStateException(ERROR_SNAPSHOT_MSG);
+            }
+
+            Integer snapshotVersionInt = (Integer) response.get("snapshotVersion");
+            Long snapshotVersion = snapshotVersionInt != null ? snapshotVersionInt.longValue() : 0L;
+
+            log.warn("Limpiando registros locales anteriores antes de aplicar el snapshot completo...");
+            scheduleRepository.deleteAll();
+            professionalRepository.deleteAll();
+            categoryRepository.deleteAll();
+
+            processCategories(response.get("professionalCategories"));
+            processProfessionals(response.get("professionals"));
+            processSchedules(response.get("weeklySchedules"));
+
+            syncingHelper.updateSuccessState(snapshotVersion);
+
+            log.info("Sincronizacion completa finalizada con exito. Version aplicada: {}", snapshotVersion);
+
+        } catch (Exception e) {
+            log.error("Error durante la sincronizacion completa del catalogo: {}", e.getMessage(), e);
+
+
+            syncingHelper.updateErrorState(e.getMessage());
+
+            throw e;
         }
-
-        Integer snapshotVersionInt = (Integer) response.get("snapshotVersion");
-        Long snapshotVersion = snapshotVersionInt != null ? snapshotVersionInt.longValue() : 0L;
-
-        log.warn("Limpiando registros locales anteriores antes de aplicar el snapshot completo...");
-        scheduleRepository.deleteAll();
-        professionalRepository.deleteAll();
-        categoryRepository.deleteAll();
-
-        processCategories(response.get("professionalCategories"));
-        processProfessionals(response.get("professionals"));
-        processSchedules(response.get("weeklySchedules"));
-
-        updateSyncState(snapshotVersion);
-
-        log.info("Sincronizacion completa finalizada con exito. Version aplicada: {}", snapshotVersion);
     }
 
     private void processCategories(Object catObj) {
@@ -127,15 +137,6 @@ public class CatalogSyncService implements CatalogSyncUseCase {
                 }
             }
         }
-    }
-
-    private void updateSyncState(Long snapshotVersion) {
-        CatalogSyncStateEntity state = syncStateRepository.findById(1L).orElseGet(CatalogSyncStateEntity::new);
-        state.setId(1L);
-        state.setCurrentVersion(snapshotVersion);
-        state.setLastSyncedAt(Instant.now());
-        state.setStatus("SUCCESS");
-        syncStateRepository.save(state);
     }
 
     private Instant parseInstant(Object val) {

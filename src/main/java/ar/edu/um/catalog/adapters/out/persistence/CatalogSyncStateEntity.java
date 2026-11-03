@@ -14,4 +14,7 @@ public class CatalogSyncStateEntity {
     private Long currentVersion;
     private Instant lastSyncedAt;
     private String status;
+
+    @Column(length = 1000)
+    private String errorMessage;
 }

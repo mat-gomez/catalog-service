@@ -14,28 +14,32 @@ class CatalogSyncStateEntityTest {
         Long currentVersion = 10L;
         Instant now = Instant.now();
         String status = "SYNCED";
+        String errorMessage = "Error de prueba";
 
         entity.setId(id);
         entity.setCurrentVersion(currentVersion);
         entity.setLastSyncedAt(now);
         entity.setStatus(status);
+        entity.setErrorMessage(errorMessage);
 
         assertEquals(id, entity.getId());
         assertEquals(currentVersion, entity.getCurrentVersion());
         assertEquals(now, entity.getLastSyncedAt());
         assertEquals(status, entity.getStatus());
+        assertEquals(errorMessage, entity.getErrorMessage());
     }
 
     @Test
     void testAllArgsConstructor() {
         Instant now = Instant.now();
-        CatalogSyncStateEntity entity = new CatalogSyncStateEntity(1L, 5L, now, "PENDING");
+        CatalogSyncStateEntity entity = new CatalogSyncStateEntity(1L, 5L, now, "PENDING", null);
 
         assertNotNull(entity);
         assertEquals(1L, entity.getId());
         assertEquals(5L, entity.getCurrentVersion());
         assertEquals(now, entity.getLastSyncedAt());
         assertEquals("PENDING", entity.getStatus());
+        assertNull(entity.getErrorMessage());
     }
 
     @Test
@@ -46,6 +50,7 @@ class CatalogSyncStateEntityTest {
                 .currentVersion(20L)
                 .lastSyncedAt(now)
                 .status("ERROR")
+                .errorMessage("Fallo de conexion con catedra")
                 .build();
 
         assertNotNull(entity);
@@ -53,5 +58,6 @@ class CatalogSyncStateEntityTest {
         assertEquals(20L, entity.getCurrentVersion());
         assertEquals(now, entity.getLastSyncedAt());
         assertEquals("ERROR", entity.getStatus());
+        assertEquals("Fallo de conexion con catedra", entity.getErrorMessage());
     }
 }
