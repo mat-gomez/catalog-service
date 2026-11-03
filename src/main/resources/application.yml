@@ -45,7 +45,7 @@ catedra:
     base-url: ${CATEDRA_API_URL:http://172.17.201.1:8090}
     jwt-token: ${CATEDRA_JWT_TOKEN:}
   kafka:
-    catalog-topic: ${CATED_CATALOG_TOPIC:catedra.catalog.proyecto-melina-gomez}
+    catalog-topic: ${CATEDRA_CATALOG_TOPIC:catedra.catalog.proyecto-melina-gomez}
 
 management:
   endpoint:
