@@ -26,6 +26,7 @@ public class EstadoSincronizacionController {
                 .currentVersion(estado.getCurrentVersion())
                 .oldestAvailableVersion(0L)
                 .status(estado.getStatus())
+                .errorMessage(estado.getErrorMessage())
                 .build();
 
         return ResponseEntity.ok(response);

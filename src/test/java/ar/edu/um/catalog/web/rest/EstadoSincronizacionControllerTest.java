@@ -38,6 +38,7 @@ class EstadoSincronizacionControllerTest {
         EstadoSincronizacion mockEstado = EstadoSincronizacion.builder()
                 .currentVersion(7L)
                 .status("OK")
+                .errorMessage("Sin errores recientes")
                 .build();
 
         when(consultarEstadoSincronizacionUseCase.consultarEstado()).thenReturn(mockEstado);
@@ -46,6 +47,7 @@ class EstadoSincronizacionControllerTest {
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.currentVersion").value(7))
-                .andExpect(jsonPath("$.status").value("OK"));
+                .andExpect(jsonPath("$.status").value("OK"))
+                .andExpect(jsonPath("$.errorMessage").value("Sin errores recientes"));
     }
 }

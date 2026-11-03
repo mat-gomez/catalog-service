@@ -11,10 +11,10 @@ import org.springframework.web.client.RestClient;
 
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
@@ -36,7 +36,7 @@ class CatalogSyncServiceTest {
     @Mock
     private WeeklyScheduleRepository scheduleRepository;
     @Mock
-    private CatalogSyncStateRepository syncStateRepository;
+    private CatalogSyncingHelper syncingHelper;
 
     @InjectMocks
     private CatalogSyncService catalogSyncService;
@@ -86,8 +86,6 @@ class CatalogSyncServiceTest {
         when(requestHeadersSpec.retrieve()).thenReturn(responseSpec);
         when(responseSpec.body(any(ParameterizedTypeReference.class))).thenReturn(mockSnapshot);
 
-        when(syncStateRepository.findById(1L)).thenReturn(Optional.of(new CatalogSyncStateEntity()));
-
         assertDoesNotThrow(() -> catalogSyncService.executeFullSnapshotSync());
 
         verify(scheduleRepository, times(1)).deleteAll();
@@ -97,7 +95,8 @@ class CatalogSyncServiceTest {
         verify(categoryRepository, times(1)).save(any(ProfessionalCategoryEntity.class));
         verify(professionalRepository, times(1)).save(any(ProfessionalEntity.class));
         verify(scheduleRepository, times(1)).save(any(WeeklyScheduleEntity.class));
-        verify(syncStateRepository, times(1)).save(any(CatalogSyncStateEntity.class));
+
+        verify(syncingHelper, times(1)).updateSuccessState(1L);
     }
 
     @Test
@@ -112,5 +111,7 @@ class CatalogSyncServiceTest {
         verify(scheduleRepository, never()).deleteAll();
         verify(professionalRepository, never()).deleteAll();
         verify(categoryRepository, never()).deleteAll();
+
+        verify(syncingHelper, times(1)).updateErrorState(anyString());
     }
 }

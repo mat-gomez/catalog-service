@@ -14,4 +14,5 @@ public class EstadoSincronizacion {
     private Long currentVersion;
     private Instant lastSyncedAt;
     private String status;
+    private String errorMessage;
 }

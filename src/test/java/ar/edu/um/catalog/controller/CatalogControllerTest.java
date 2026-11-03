@@ -67,9 +67,9 @@ class CatalogControllerTest {
         entity.setCreatedAt(Instant.now());
         entity.setUpdatedAt(Instant.now());
 
-        when(professionalRepository.findByFilters(any(), any(), any())).thenReturn(List.of(entity));
+        when(professionalRepository.findByFilters(any(), any(), any(), any())).thenReturn(List.of(entity));
 
-        ResponseEntity<?> response = catalogController.searchProfessionals(1L, "Juan", true);
+        ResponseEntity<?> response = catalogController.searchProfessionals(1L, "Juan", true, "MONDAY");
         assertNotNull(response);
     }
 
