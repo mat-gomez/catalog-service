@@ -3,7 +3,7 @@
 
 > Documento **generado automáticamente** por la cátedra de Programación II (UM): RepoSense + análisis de calidad de **7 dimensiones**. **No editar a mano**: se regenera en cada evaluación.
 > Rama evaluada: `main`. Análisis **heurístico** (regex + métricas) + build: es una criba para orientar la revisión, **no una nota**. La **documentación** del repositorio no se evalúa.
-> Generado: 2026-11-17.
+> Generado: 2026-11-18.
 
 ## 1. Veredicto
 
@@ -52,7 +52,7 @@ Cada dimensión indica **qué mide**, **por qué importa** y **tu resultado**. C
 
 | Dimensión | Peso | Puntaje |
 |:--|--:|--:|
-| **D1** Diseño OO, SOLID y patrones (20%) | 20% | 10 |
+| **D1** Diseño OO, SOLID y patrones (20%) | 20% | 9 |
 | **D2** Arquitectura hexagonal — backend (15%) | 15% | 68 |
 | **D3** Frontend KMP: MVVM y buenas prácticas (10%) | 10% | N/A |
 | **D4** Integración y contrato (10%) | 10% | 60 |
@@ -64,7 +64,7 @@ Cada dimensión indica **qué mide**, **por qué importa** y **tu resultado**. C
 
 - **Qué mide:** Métricas orientadas a objetos (clases, métodos, campos, cohesión, acoplamiento, herencia) y proxies de SOLID, más patrones de diseño.
 - **Por qué importa:** El eje de la materia es el buen uso de la POO y su arquitectura: un diseño con clases claras y poco acopladas es más fácil de entender, probar y cambiar.
-- **Tu resultado:** **10/100**
+- **Tu resultado:** **9/100**
 - **Para investigar la causa:**
     - ¿Se pensó el modelo de clases antes de codificar o se agrupó después?
     - ¿Qué clases concentran muchas responsabilidades a la vez?
@@ -102,49 +102,65 @@ Cada dimensión indica **qué mide**, **por qué importa** y **tu resultado**. C
 
 ## 5. Señales detectadas
 
-El análisis encontró las siguientes señales (archivo, sin número de línea a propósito):
+El análisis encontró las siguientes señales, con el archivo y la línea donde se originan cuando están disponibles:
+
+**Archivos con más señales**
+
+| Archivo | Señales |
+|---|---:|
+| `src/main/java/ar/edu/um/catalog/service/CatalogIncrementalSyncService.java` | 8 |
+| `src/main/java/ar/edu/um/catalog/service/CatalogSyncService.java` | 8 |
+| `src/main/java/ar/edu/um/catalog/CatalogServiceApplication.java` | 2 |
+| `src/main/java/ar/edu/um/catalog/config/SecurityConfig.java` | 2 |
+| `src/main/java/ar/edu/um/catalog/domain/WeeklySchedule.java` | 2 |
+| `src/main/java/ar/edu/um/catalog/adapters/in/rest/CatalogController.java` | 2 |
+| `src/main/java/ar/edu/um/catalog/domain/CambiosCatalogo.java` | 1 |
+| `src/main/java/ar/edu/um/catalog/domain/EstadoSincronizacion.java` | 1 |
+| `src/main/java/ar/edu/um/catalog/domain/ProfessionalCategory.java` | 1 |
+| `src/main/java/ar/edu/um/catalog/domain/Professional.java` | 1 |
 
 **DIP/concretos** (10)
-- clase 'CatalogServiceApplication' muy acoplada (CBO=14) — `src/main/java/ar/edu/um/catalog/CatalogServiceApplication.java`
-- clase 'CatalogIncrementalSyncService' muy acoplada (CBO=35) — `src/main/java/ar/edu/um/catalog/service/CatalogIncrementalSyncService.java`
-- clase 'CatalogIncrementalSyncService' instancia 5 concretos (CBO=35) — `src/main/java/ar/edu/um/catalog/service/CatalogIncrementalSyncService.java`
-- clase 'CatalogSyncService' muy acoplada (CBO=19) — `src/main/java/ar/edu/um/catalog/service/CatalogSyncService.java`
-- clase 'CatalogSyncService' instancia 4 concretos (CBO=19) — `src/main/java/ar/edu/um/catalog/service/CatalogSyncService.java`
-- clase 'SecurityConfig' muy acoplada (CBO=25) — `src/main/java/ar/edu/um/catalog/config/SecurityConfig.java`
-- clase 'SecurityConfig' instancia 3 concretos (CBO=25) — `src/main/java/ar/edu/um/catalog/config/SecurityConfig.java`
-- clase 'ProfessionalRepository' muy acoplada (CBO=16) — `src/main/java/ar/edu/um/catalog/adapters/out/persistence/ProfessionalRepository.java`
-- clase 'CatalogController' muy acoplada (CBO=13) — `src/main/java/ar/edu/um/catalog/adapters/in/rest/CatalogController.java`
-- clase 'CatalogKafkaConsumer' muy acoplada (CBO=8) — `src/main/java/ar/edu/um/catalog/adapters/in/messaging/CatalogKafkaConsumer.java`
+- clase 'CatalogServiceApplication' muy acoplada (CBO=14) — `src/main/java/ar/edu/um/catalog/CatalogServiceApplication.java:15`
+- clase 'CatalogKafkaConsumer' muy acoplada (CBO=8) — `src/main/java/ar/edu/um/catalog/adapters/in/messaging/CatalogKafkaConsumer.java:15`
+- clase 'CatalogController' muy acoplada (CBO=13) — `src/main/java/ar/edu/um/catalog/adapters/in/rest/CatalogController.java:22`
+- clase 'ProfessionalRepository' muy acoplada (CBO=16) — `src/main/java/ar/edu/um/catalog/adapters/out/persistence/ProfessionalRepository.java:10`
+- clase 'SecurityConfig' muy acoplada (CBO=25) — `src/main/java/ar/edu/um/catalog/config/SecurityConfig.java:23`
+- clase 'SecurityConfig' instancia 3 concretos (CBO=25) — `src/main/java/ar/edu/um/catalog/config/SecurityConfig.java:23`
+- clase 'CatalogIncrementalSyncService' muy acoplada (CBO=35) — `src/main/java/ar/edu/um/catalog/service/CatalogIncrementalSyncService.java:18`
+- clase 'CatalogIncrementalSyncService' instancia 5 concretos (CBO=35) — `src/main/java/ar/edu/um/catalog/service/CatalogIncrementalSyncService.java:18`
+- clase 'CatalogSyncService' muy acoplada (CBO=19) — `src/main/java/ar/edu/um/catalog/service/CatalogSyncService.java:20`
+- clase 'CatalogSyncService' instancia 4 concretos (CBO=19) — `src/main/java/ar/edu/um/catalog/service/CatalogSyncService.java:20`
 
-**SRP/responsabilidad** (17)
-- clase 'CatalogIncrementalSyncService' grande (LOC=125, métodos=5, campos=8) — `src/main/java/ar/edu/um/catalog/service/CatalogIncrementalSyncService.java`
-- método 'CatalogIncrementalSyncService.processCatalogUpdate' de 41 líneas — `src/main/java/ar/edu/um/catalog/service/CatalogIncrementalSyncService.java`
-- método 'CatalogIncrementalSyncService.processCatalogUpdate' con complejidad 8 — `src/main/java/ar/edu/um/catalog/service/CatalogIncrementalSyncService.java`
-- clase 'CatalogSyncService' grande (LOC=108, métodos=8, campos=21) — `src/main/java/ar/edu/um/catalog/service/CatalogSyncService.java`
-- clase 'CatalogSyncService' con baja cohesión (32%) — `src/main/java/ar/edu/um/catalog/service/CatalogSyncService.java`
-- método 'CatalogSyncService.processCategories' con complejidad 7 — `src/main/java/ar/edu/um/catalog/service/CatalogSyncService.java`
-- método 'CatalogSyncService.processProfessionals' con complejidad 7 — `src/main/java/ar/edu/um/catalog/service/CatalogSyncService.java`
-- método 'CatalogSyncService.processSchedules' con complejidad 7 — `src/main/java/ar/edu/um/catalog/service/CatalogSyncService.java`
-- clase 'CambiosCatalogo' sin métodos (3 campos): solo datos — `src/main/java/ar/edu/um/catalog/domain/CambiosCatalogo.java`
-- clase 'WeeklySchedule' grande (LOC=11, métodos=0, campos=9) — `src/main/java/ar/edu/um/catalog/domain/WeeklySchedule.java`
-- clase 'WeeklySchedule' sin métodos (9 campos): solo datos — `src/main/java/ar/edu/um/catalog/domain/WeeklySchedule.java`
-- clase 'EstadoSincronizacion' sin métodos (4 campos): solo datos — `src/main/java/ar/edu/um/catalog/domain/EstadoSincronizacion.java`
-- clase 'ProfessionalCategory' sin métodos (6 campos): solo datos — `src/main/java/ar/edu/um/catalog/domain/ProfessionalCategory.java`
-- clase 'Professional' sin métodos (7 campos): solo datos — `src/main/java/ar/edu/um/catalog/domain/Professional.java`
-- clase 'SnapshotCatalogo' sin métodos (5 campos): solo datos — `src/main/java/ar/edu/um/catalog/domain/SnapshotCatalogo.java`
-- clase 'CatalogSyncState' sin métodos (5 campos): solo datos — `src/main/java/ar/edu/um/catalog/domain/CatalogSyncState.java`
-- clase 'WeeklyScheduleEntity' grande (LOC=18, métodos=0, campos=9) — `src/main/java/ar/edu/um/catalog/adapters/out/persistence/WeeklyScheduleEntity.java`
+**SRP/responsabilidad** (18)
+- método 'CatalogServiceApplication.initData' de 37 líneas — `src/main/java/ar/edu/um/catalog/CatalogServiceApplication.java:22`
+- clase 'CatalogController' con baja cohesión (0%) — `src/main/java/ar/edu/um/catalog/adapters/in/rest/CatalogController.java:22`
+- clase 'CambiosCatalogo' sin métodos (3 campos): solo datos — `src/main/java/ar/edu/um/catalog/domain/CambiosCatalogo.java:13`
+- clase 'CatalogSyncState' sin métodos (5 campos): solo datos — `src/main/java/ar/edu/um/catalog/domain/CatalogSyncState.java:7`
+- clase 'EstadoSincronizacion' sin métodos (4 campos): solo datos — `src/main/java/ar/edu/um/catalog/domain/EstadoSincronizacion.java:13`
+- clase 'Professional' sin métodos (7 campos): solo datos — `src/main/java/ar/edu/um/catalog/domain/Professional.java:7`
+- clase 'ProfessionalCategory' sin métodos (6 campos): solo datos — `src/main/java/ar/edu/um/catalog/domain/ProfessionalCategory.java:7`
+- clase 'SnapshotCatalogo' sin métodos (5 campos): solo datos — `src/main/java/ar/edu/um/catalog/domain/SnapshotCatalogo.java:14`
+- clase 'WeeklySchedule' grande (LOC=11, métodos=0, campos=9) — `src/main/java/ar/edu/um/catalog/domain/WeeklySchedule.java:8`
+- clase 'WeeklySchedule' sin métodos (9 campos): solo datos — `src/main/java/ar/edu/um/catalog/domain/WeeklySchedule.java:8`
+- clase 'CatalogIncrementalSyncService' grande (LOC=125, métodos=5, campos=8) — `src/main/java/ar/edu/um/catalog/service/CatalogIncrementalSyncService.java:18`
+- método 'CatalogIncrementalSyncService.processCatalogUpdate' de 41 líneas — `src/main/java/ar/edu/um/catalog/service/CatalogIncrementalSyncService.java:32`
+- método 'CatalogIncrementalSyncService.processCatalogUpdate' con complejidad 8 — `src/main/java/ar/edu/um/catalog/service/CatalogIncrementalSyncService.java:32`
+- clase 'CatalogSyncService' grande (LOC=108, métodos=8, campos=21) — `src/main/java/ar/edu/um/catalog/service/CatalogSyncService.java:20`
+- clase 'CatalogSyncService' con baja cohesión (32%) — `src/main/java/ar/edu/um/catalog/service/CatalogSyncService.java:20`
+- método 'CatalogSyncService.processCategories' con complejidad 7 — `src/main/java/ar/edu/um/catalog/service/CatalogSyncService.java:87`
+- método 'CatalogSyncService.processProfessionals' con complejidad 7 — `src/main/java/ar/edu/um/catalog/service/CatalogSyncService.java:104`
+- método 'CatalogSyncService.processSchedules' con complejidad 7 — `src/main/java/ar/edu/um/catalog/service/CatalogSyncService.java:122`
 
 **OCP/type-switch** (1)
-- clase 'CatalogSyncService' con 6 type-checks — `src/main/java/ar/edu/um/catalog/service/CatalogSyncService.java`
+- clase 'CatalogSyncService' con 6 type-checks — `src/main/java/ar/edu/um/catalog/service/CatalogSyncService.java:20`
 
 **duplicación** (6)
 - duplicación lógica: 3.9% · boilerplate: 5.1%
-- bloque de 8 líneas repetido 4 veces en src/test/java/ar/edu/um/catalog/service/CatalogIncrementalSyncServiceTest.java:103, src/test/java/ar/edu/um/catalog/service/CatalogIncrementalSyncServiceTest.java:165, src/test/java/ar/edu/um/catalog/service/CatalogIncrementalSyncServiceTest.java:186 — `src/test/java/ar/edu/um/catalog/service/CatalogIncrementalSyncServiceTest.java`
-- bloque de 8 líneas repetido 3 veces en src/main/java/ar/edu/um/catalog/service/CatalogIncrementalSyncService.java:108, src/main/java/ar/edu/um/catalog/service/CatalogIncrementalSyncService.java:129, src/main/java/ar/edu/um/catalog/service/CatalogIncrementalSyncService.java:150 — `src/main/java/ar/edu/um/catalog/service/CatalogIncrementalSyncService.java`
-- bloque de 8 líneas repetido 3 veces en src/main/java/ar/edu/um/catalog/service/CatalogIncrementalSyncService.java:109, src/main/java/ar/edu/um/catalog/service/CatalogIncrementalSyncService.java:130, src/main/java/ar/edu/um/catalog/service/CatalogIncrementalSyncService.java:151 — `src/main/java/ar/edu/um/catalog/service/CatalogIncrementalSyncService.java`
-- bloque de 8 líneas repetido 3 veces en src/main/java/ar/edu/um/catalog/service/CatalogIncrementalSyncService.java:107, src/main/java/ar/edu/um/catalog/service/CatalogIncrementalSyncService.java:128, src/main/java/ar/edu/um/catalog/service/CatalogIncrementalSyncService.java:149 — `src/main/java/ar/edu/um/catalog/service/CatalogIncrementalSyncService.java`
-- bloque de 8 líneas repetido 2 veces en src/test/java/ar/edu/um/catalog/domain/model/ProfessionalTest.java:58, src/test/java/ar/edu/um/catalog/adapters/out/persistence/ProfessionalEntityTest.java:56 — `src/test/java/ar/edu/um/catalog/domain/model/ProfessionalTest.java`
+- bloque de 8 líneas repetido 3 veces en src/main/java/ar/edu/um/catalog/service/CatalogIncrementalSyncService.java:107, src/main/java/ar/edu/um/catalog/service/CatalogIncrementalSyncService.java:128, src/main/java/ar/edu/um/catalog/service/CatalogIncrementalSyncService.java:149 — `src/main/java/ar/edu/um/catalog/service/CatalogIncrementalSyncService.java:107`
+- bloque de 8 líneas repetido 3 veces en src/main/java/ar/edu/um/catalog/service/CatalogIncrementalSyncService.java:108, src/main/java/ar/edu/um/catalog/service/CatalogIncrementalSyncService.java:129, src/main/java/ar/edu/um/catalog/service/CatalogIncrementalSyncService.java:150 — `src/main/java/ar/edu/um/catalog/service/CatalogIncrementalSyncService.java:108`
+- bloque de 8 líneas repetido 3 veces en src/main/java/ar/edu/um/catalog/service/CatalogIncrementalSyncService.java:109, src/main/java/ar/edu/um/catalog/service/CatalogIncrementalSyncService.java:130, src/main/java/ar/edu/um/catalog/service/CatalogIncrementalSyncService.java:151 — `src/main/java/ar/edu/um/catalog/service/CatalogIncrementalSyncService.java:109`
+- bloque de 8 líneas repetido 2 veces en src/test/java/ar/edu/um/catalog/domain/model/ProfessionalTest.java:58, src/test/java/ar/edu/um/catalog/adapters/out/persistence/ProfessionalEntityTest.java:56 — `src/test/java/ar/edu/um/catalog/domain/model/ProfessionalTest.java:58`
+- bloque de 8 líneas repetido 4 veces en src/test/java/ar/edu/um/catalog/service/CatalogIncrementalSyncServiceTest.java:103, src/test/java/ar/edu/um/catalog/service/CatalogIncrementalSyncServiceTest.java:165, src/test/java/ar/edu/um/catalog/service/CatalogIncrementalSyncServiceTest.java:186 — `src/test/java/ar/edu/um/catalog/service/CatalogIncrementalSyncServiceTest.java:103`
 
 **hexagonal** (1)
 - falta ports/out (hexagonal)
