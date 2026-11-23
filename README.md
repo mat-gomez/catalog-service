@@ -8,7 +8,7 @@ Detalle completo en [`docs/EVALUACION.md`](docs/EVALUACION.md).
 # catalog-service
 
 
-# 📚 SERVICIO DE CATÁLOGO Y SINCRONIZACIÓN
+#  SERVICIO DE CATÁLOGO Y SINCRONIZACIÓN
 
 > **Proyecto Integrador 2026 — Sistema Distribuido de Gestión de Turnos**
 
@@ -21,7 +21,7 @@ Detalle completo en [`docs/EVALUACION.md`](docs/EVALUACION.md).
 
 ---
 
-## 🚀 1. Descripción General
+##  1. Descripción General
 
 El **`catalog-service`** es un microservicio backend independiente desarrollado con **Java 21 y Spring Boot**, diseñado bajo los principios de **Arquitectura Hexagonal**. Su responsabilidad principal es actuar como la única fuente local vigente para consultar categorías, profesionales y horarios semanales, desacoplando las búsquedas de la API central de la cátedra.
 
@@ -40,7 +40,7 @@ Para mantener la consistencia de los datos, implementa una robusta **estrategia 
 
 ---
 
-## ⚙️ 3. Requisitos Previos y Entorno
+##  3. Requisitos Previos y Entorno
 
 Para compilar y ejecutar el servicio localmente, asegúrate de contar con:
 * **JDK 21** instalado en tu entorno.
@@ -49,7 +49,7 @@ Para compilar y ejecutar el servicio localmente, asegúrate de contar con:
 
 ---
 
-## 🔐 4. Configuración y Variables de Entorno
+##  4. Configuración y Variables de Entorno
 
 Toda la sensibilidad y parámetros de conexión se encuentran externalizados. Debes configurar las siguientes variables de entorno antes de ejecutar la aplicación:
 
@@ -64,7 +64,7 @@ Toda la sensibilidad y parámetros de conexión se encuentran externalizados. De
 
 ---
 
-## 🐳 5. Ejecución Local con Docker Compose
+##  5. Ejecución Local con Docker Compose
 
 La infraestructura local de persistencia se despliega mediante contenedores aislados:
 
@@ -85,7 +85,7 @@ La infraestructura local de persistencia se despliega mediante contenedores aisl
 
 ---
 
-## 🔄 6. Estrategia de Sincronización del Catálogo
+##  6. Estrategia de Sincronización del Catálogo
 
 El servicio garantiza que la copia local esté siempre actualizada a través de dos mecanismos concurrentes:
 
@@ -108,7 +108,7 @@ El servicio garantiza que la copia local esté siempre actualizada a través de 
 
 ---
 
-## 🧪 7. Pruebas Automatizadas y Calidad
+##  7. Pruebas Automatizadas y Calidad
 
 El microservicio cuenta con una suite completa de pruebas unitarias y de integración que validan repositorios, seguridad, filtros de búsqueda y la lógica de sincronización.
 
@@ -121,7 +121,7 @@ Para ejecutar todas las pruebas y generar el reporte de cobertura con JaCoCo:
 
 ---
 
-## 🛡️ 8. Seguridad y Autenticación
+##  8. Seguridad y Autenticación
 
 * **Protección de Endpoints:** Todos los recursos REST (excepto los de infraestructura/actuator) exigen una cabecera de autorización válida del tipo `Authorization: Bearer <jwt>`.
 
